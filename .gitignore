@@ -9,3 +9,6 @@ src.egg-info/top_level.txt
 Legacy_Code/data
 Legacy_Code/Model_DAGs
 data
+Legacy_Code
+*__pycache__*
+*__.cpython__*

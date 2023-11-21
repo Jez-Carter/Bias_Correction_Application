@@ -101,12 +101,14 @@ def tinygp_2process_model(scenario):
     """
     kern_var = numpyro.sample("kern_var", scenario['t_variance_prior'])
     lengthscale = numpyro.sample("lengthscale", scenario['t_lengthscale_prior'])
-    kernel = kern_var * kernels.ExpSquared(lengthscale)
+    # kernel = kern_var * kernels.ExpSquared(lengthscale)
+    kernel = kern_var * kernels.Matern32(lengthscale)
     mean = numpyro.sample("mean", scenario['t_mean_prior'])
 
     bkern_var = numpyro.sample("bkern_var", scenario['b_variance_prior'])
     blengthscale = numpyro.sample("blengthscale", scenario['b_lengthscale_prior'])
-    bkernel = bkern_var * kernels.ExpSquared(blengthscale)
+    # bkernel = bkern_var * kernels.ExpSquared(blengthscale)
+    bkernel = bkern_var * kernels.Matern32(blengthscale)
     bmean = numpyro.sample("bmean", scenario['b_mean_prior'])
 
     ckernel = kernel+bkernel
@@ -257,7 +259,7 @@ def generate_posterior_predictive_realisations(
 
 ############# Plotting #############
 def create_levels(scenario,sep,rounding,center=None):
-    data = np.array([scenario['T'],scenario['B'],scenario['C']])
+    data = np.concatenate([scenario['odata'],scenario['cdata']], axis=0)
     vmin = data.min()
     vmax = data.max()
     abs_max_rounded = max(np.abs(vmin),vmax).round(rounding)
@@ -368,20 +370,20 @@ def plot_predictions_2d(scenario,axs):
     bias = scenario['bias_posterior_predictive_realisations']
     bias_mean = bias.mean(axis=0)
     bias_std = bias.std(axis=0)
-    T = scenario['T']
-    B = scenario['B']
+    # T = scenario['T']
+    # B = scenario['B']
 
     plots = []
 
     levels = create_levels(scenario,0.25,0,center=True)
 
-    for ax,data in zip(axs[::3],[T,B]):
-        plots.append(ax.contourf(scenario['X1'],
-                    scenario['X2'],
-                    data.reshape(scenario['X1'].shape),
-                    cmap='RdBu_r',
-                    levels=levels
-        ))
+    # for ax,data in zip(axs[::3],[T,B]):
+    #     plots.append(ax.contourf(scenario['X1'],
+    #                 scenario['X2'],
+    #                 data.reshape(scenario['X1'].shape),
+    #                 cmap='RdBu_r',
+    #                 levels=levels
+    #     ))
 
     for ax,data in zip(axs[1::3],[truth_mean,bias_mean]):
         plots.append(ax.contourf(scenario['X1'],
