@@ -6,9 +6,8 @@ src.egg-info/dependency_links.txt
 src.egg-info/PKG-INFO
 src.egg-info/SOURCES.txt
 src.egg-info/top_level.txt
-Legacy_Code/data
-Legacy_Code/Model_DAGs
-data
-Legacy_Code
+Legacy_Code/
+Recent_Legacy_Code
+tests/
 *__pycache__*
 *__.cpython__*

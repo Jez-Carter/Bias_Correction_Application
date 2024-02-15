@@ -65,6 +65,19 @@ cordex_ds_stacked = cordex_ds_stacked.assign_coords(glon=("X", glon))
 cordex_ds_stacked = cordex_ds_stacked.assign_coords(glat=("X", glat))
 cordex_ds = cordex_ds_stacked.unstack()
 
+# %% Understanding Distances in glon,glat coordinates
+glon_0 = cordex_ds.isel(grid_longitude=0,grid_latitude=0).glon.values
+glat_0 = cordex_ds.isel(grid_longitude=0,grid_latitude=0).glat.values
+glon_1 = cordex_ds.isel(grid_longitude=1,grid_latitude=0).glon.values
+glat_1 = cordex_ds.isel(grid_longitude=1,grid_latitude=0).glat.values
+
+print(np.sqrt((glon_1-glon_0)**2+(glat_1-glat_0)**2))
+
+# %%
+glon_0
+# glat_0
+#-cordex_ds.isel(grid_longitude=1,grid_latitude=0)
+
 # %% Saving Reformatted CORDEX data
 CORDEX_outpath = f'{base_path}DSNE_ice_sheets/Jez/Bias_Correction/Data/CORDEX.nc'
 cordex_ds.to_netcdf(CORDEX_outpath)

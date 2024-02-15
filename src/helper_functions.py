@@ -11,6 +11,48 @@ import geopandas as gpd
 from shapely.geometry import Point
 import datetime
 
+import timeit
+import numpy as np
+from numpyro.infer import MCMC, NUTS
+import jax
+import jax.numpy as jnp
+
+
+jax.config.update("jax_enable_x64", True)
+
+
+def run_inference(
+    model, rng_key, num_warmup, num_samples, num_chains, *args, **kwargs
+):  # data,distance_matrix=None):
+    """
+    Helper function for doing MCMC inference
+    Args:
+        model (python function): function that follows numpyros syntax
+        rng_key (np array): PRNGKey for reproducible results
+        num_warmup (int): Number of MCMC steps for warmup
+        num_samples (int): Number of MCMC samples to take of parameters after warmup
+        data (jax device array): data in shape [#days,#months,#sites]
+        distance_matrix_values(jax device array): matrix of distances between sites, shape [#sites,#sites]
+    Returns:
+        MCMC numpyro instance (class object): An MCMC class object with functions such as .get_samples() and .run()
+    """
+    starttime = timeit.default_timer()
+
+    kernel = NUTS(model)
+    mcmc = MCMC(
+        kernel, num_warmup=num_warmup, num_samples=num_samples, num_chains=num_chains
+    )
+
+    mcmc.run(rng_key, *args, **kwargs)
+
+    mcmc.print_summary()
+    print("Time Taken:", timeit.default_timer() - starttime)
+    return mcmc
+
+
+def diagonal_noise(coord, noise):
+    return jnp.diag(jnp.full(coord.shape[0], noise))
+
 def standardise(data,refdata=None):
     if refdata is None:
         standardised_data = (data-data.mean())/data.std()
@@ -102,6 +144,26 @@ def create_mask(da,gdf,projection=None):
                 mask[i,j]=True
             else:
                 mask[i,j]=False
+    return(mask)
+
+def create_aws_mask(df,gdf,projection=None):
+    longitude = df['Lon(℃)']
+    latitude = df['Lat(℃)']
+    mask_shape = longitude.shape
+    mask = np.empty(mask_shape,dtype=bool)
+
+    if projection is not None:
+        gdf = gdf.to_crs(projection)
+
+    for i in range(len(longitude)):
+        point = Point(longitude[i],latitude[i])
+        point_gdf = gpd.GeoDataFrame(crs='epsg:4326', geometry=[point])
+        if projection is not None:
+            point_gdf = point_gdf.reset_index().to_crs(projection)
+        if gdf.contains(point_gdf).values[0]:
+            mask[i]=True
+        else:
+            mask[i]=False
     return(mask)
 
 def calculate_time(year,month,day):
