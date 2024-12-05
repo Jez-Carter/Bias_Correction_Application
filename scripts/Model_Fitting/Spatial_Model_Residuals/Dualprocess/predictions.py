@@ -33,7 +33,7 @@ generate_posterior_predictive_realisations_dualprocess_mean(
     scenario["cx"],
     scenario,
     100,
-    1,
+    10,
     rng_key
 )
 
@@ -63,6 +63,11 @@ generate_posterior_predictive_realisations_dualprocess_logvar_station_locations(
     1,
     rng_key
 )
+
+# %%
+scenario[
+        "truth_posterior_predictive_realisations_dualprocess_mean"
+    ]
 
 # %%
 scenario['truth_posterior_predictive_realisations_dualprocess_mean_station_locations']

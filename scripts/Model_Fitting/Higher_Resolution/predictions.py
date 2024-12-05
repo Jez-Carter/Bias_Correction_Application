@@ -121,8 +121,8 @@ starttime = timeit.default_timer()
 t_realisations, b_realisations = generate_posterior_predictive_realisations_dualprocess_mean(
         cx,
         scenario,
-        20,
-        1,
+        100,
+        10,
         rng_key
 )
 print("Time Taken:", timeit.default_timer() - starttime)
@@ -134,14 +134,15 @@ starttime = timeit.default_timer()
 t_realisations, b_realisations = generate_posterior_predictive_realisations_dualprocess_logvar(
         cx,
         scenario,
-        20,
-        1,
+        100,
+        10,
         rng_key
 )
 print("Time Taken:", timeit.default_timer() - starttime)
 
 scenario["truth_posterior_predictive_realisations_dualprocess_logvar_hr"] = t_realisations
 scenario["bias_posterior_predictive_realisations_dualprocess_logvar_hr"] = b_realisations
+
 
 # %% Merging data for plotting
 
@@ -159,6 +160,9 @@ ds_climate_coarse_june_stacked_landonly['std_bias_posterior_predictive_realisati
     scenario['bias_posterior_predictive_realisations_dualprocess_mean_hr'].std(axis=0))
 
 ds_climate_coarse_june_stacked = xr.merge([ds_climate_coarse_june_stacked,ds_climate_coarse_june_stacked_landonly])
+
+
+
 
 # %% Saving Output
 
@@ -180,6 +184,86 @@ scenario = np.load(
 ).item()
 
 ds_climate_coarse_june_stacked = scenario['ds_climate_coarse_june_stacked_hr']
+
+
+# %% MeanFunction Prediction 
+
+from src.slide_functions import background_map_rotatedcoords, rotated_coord_system, markersize_legend
+ds_climate_coarse_june_stacked_landonly['exp_meanfunc_prediction_unbiased'] = (
+    ('X'),
+    posterior_climate_hr['meanfunc_prediction_unbiased'].mean(['chain','draw']).data)
+ds_climate_coarse_june_stacked_landonly['std_meanfunc_prediction_unbiased'] = (
+    ('X'),
+    posterior_climate_hr['meanfunc_prediction_unbiased'].std(['chain','draw']).data)
+ds_climate_coarse_june_stacked_landonly['exp_meanfunc_prediction_bias'] = (
+    ('X'),
+    posterior_climate_hr['meanfunc_prediction_bias'].mean(['chain','draw']).data)
+ds_climate_coarse_june_stacked_landonly['std_meanfunc_prediction_bias'] = (
+    ('X'),
+    posterior_climate_hr['meanfunc_prediction_bias'].std(['chain','draw']).data)
+ds_climate_coarse_june_stacked = xr.merge([ds_climate_coarse_june_stacked,ds_climate_coarse_june_stacked_landonly])
+
+# %% Meanfunc Prediction Unbiased Expectation
+fig, ax = plt.subplots(1, 1, figsize=(10, 10),dpi=300)#,frameon=False)
+
+background_map_rotatedcoords(ax)
+
+posterior_climate_hr
+
+# ds_climate_coarse_june_stacked['exp_meanfunc_prediction_unbiased'].unstack().plot.pcolormesh(
+ds_climate_coarse_june_stacked['exp_meanfunc_prediction_bias'].unstack().plot.pcolormesh(
+    x='glon',
+    y='glat',
+    ax=ax,
+    alpha=0.9,
+    # vmin=-55,
+    # vmax=-10,
+    cmap='jet',
+    # add_colorbar=False,
+    cbar_kwargs = {'fraction':0.030,
+                'pad':0.02,
+                'label':'Mean Function Prediction'}
+)
+
+ax.set_ylim([-26,26])
+ax.set_axis_off()
+ax.set_title('')
+                       
+plt.tight_layout()
+
+# %% Meanfunc Prediction Unbiased Uncertainty
+fig, ax = plt.subplots(1, 1, figsize=(10, 10),dpi=300)#,frameon=False)
+
+background_map_rotatedcoords(ax)
+
+posterior_climate_hr
+
+# ds_climate_coarse_june_stacked['std_meanfunc_prediction_unbiased'].unstack().plot.pcolormesh(
+ds_climate_coarse_june_stacked['std_meanfunc_prediction_bias'].unstack().plot.pcolormesh(
+    x='glon',
+    y='glat',
+    ax=ax,
+    alpha=0.9,
+    vmin=0.8,
+    vmax=2.0,
+    cmap='viridis',
+    # add_colorbar=False,
+    cbar_kwargs = {'fraction':0.030,
+                'pad':0.02,
+                'label':'Mean Function Prediction'}
+)
+
+ax.set_ylim([-26,26])
+ax.set_axis_off()
+ax.set_title('')
+                       
+plt.tight_layout()
+
+
+
+
+
+
 # %% Spatial Plot of Unbiased and Biased Mean Residual Predictions
 fig, axs = plt.subplots(2,2, figsize=(text_width, text_width*0.7),dpi=300)#,frameon=False)
 
@@ -238,3 +322,5 @@ for ax in axs.ravel():
     ax.set_yticks([])
 
 plt.tight_layout()
+
+# %%

@@ -119,7 +119,7 @@ starttime = timeit.default_timer()
 t_realisations, b_realisations = generate_posterior_predictive_realisations_dualprocess_mean(
         cx,
         scenario,
-        40,
+        100,
         1,
         rng_key
 )
@@ -132,7 +132,7 @@ starttime = timeit.default_timer()
 t_realisations, b_realisations = generate_posterior_predictive_realisations_dualprocess_logvar(
         cx,
         scenario,
-        40,
+        100,
         1,
         rng_key
 )
@@ -172,5 +172,5 @@ ds_climate_coarse_june_stacked = xr.merge([ds_climate_coarse_june_stacked,ds_cli
 scenario['ds_climate_coarse_june_stacked_uhr'] = ds_climate_coarse_june_stacked
 scenario['ds_climate_coarse_june_stacked_landonly_uhr'] = ds_climate_coarse_june_stacked_landonly
 
-scenario_outpath = f'{base_path}DSNE_ice_sheets/Jez/Bias_Correction/Data/scenario_real.npy'
+scenario_outpath = f'{base_path}DSNE_ice_sheets/Jez/Bias_Correction/Data/scenario_real_adj.npy'
 np.save(scenario_outpath, scenario)

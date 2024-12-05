@@ -26,7 +26,7 @@ results_path = '/home/jez/Bias_Correction_Application/results/Paper_Images/'
 
 # %% Loading data
 base_path = '/home/jez/'
-inpath = f"{base_path}DSNE_ice_sheets/Jez/Bias_Correction/Data/scenario_real.npy"
+inpath = f"{base_path}DSNE_ice_sheets/Jez/Bias_Correction/Data/scenario_real_adj.npy"
 scenario = np.load(
     inpath, allow_pickle="TRUE"
 ).item()
@@ -409,3 +409,5 @@ for ax,label in zip(axs[:,0], ['Dual Process Model','Single Process Model']):
 plt.tight_layout()
 
 fig.savefig(f"{results_path}figa07.pdf", dpi=300, bbox_inches="tight")
+
+# %%

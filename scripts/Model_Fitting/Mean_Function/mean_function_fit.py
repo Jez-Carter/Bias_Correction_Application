@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpyro
 import numpyro.distributions as dist
 import arviz as az
+from scipy.spatial import distance
 
 from src.helper_functions import run_inference
 
@@ -31,6 +32,22 @@ scenario = np.load(
 
 Station = scenario['ds_aws_june_filtered']['Station']
 X = scenario['ds_climate_coarse_june_stacked_landonly']['X']
+
+
+#######################################################################################
+
+# Nearest Neighbors
+nn_indecies = []
+for point in scenario['ox']:
+    nn_indecies.append(distance.cdist([point], scenario['cx']).argmin())
+
+scenario['cx_nn'] = jnp.take(scenario['cx'], jnp.array(nn_indecies), 0)
+scenario['cdata_nn'] = jnp.take(scenario['cdata'], jnp.array(nn_indecies), 1)
+scenario['cele_scaled_nn'] = jnp.take(scenario['cele_scaled'], jnp.array(nn_indecies), 0)
+scenario['clat_scaled_nn'] = jnp.take(scenario['clat_scaled'], jnp.array(nn_indecies), 0)
+X_nn = X.isel({'X':nn_indecies})
+
+#######################################################################################
 
 # %%
 print('Useful Metrics for Priors: \n',
@@ -115,6 +132,28 @@ def mean_model_climate(scenario):
 
     numpyro.sample("Temperature", dist.Normal(mean, jnp.sqrt(var)), obs=scenario["cdata"])
 
+#######################################################################################
+
+def mean_model_climate_nn(scenario):
+    mean_b0 = numpyro.sample("mean_b0",scenario['meanfunc_b0_prior'])
+    mean_b1 = numpyro.sample("mean_b1",scenario['meanfunc_b1_prior'])
+    mean_b2 = numpyro.sample("mean_b2",scenario['meanfunc_b2_prior'])
+    mean_noise = numpyro.sample("mean_noise",scenario['meanfunc_noise_prior'])
+
+    mean_func = mean_b0 + mean_b1*scenario['cele_scaled_nn'] + mean_b2*scenario['clat_scaled_nn']
+    mean = numpyro.sample("mean",dist.Normal(mean_func, mean_noise))
+
+    logvar_b0 = numpyro.sample("logvar_b0",scenario['logvarfunc_b0_prior'])
+    logvar_noise = numpyro.sample("logvar_noise",scenario['logvarfunc_noise_prior'])
+
+    logvar_func = logvar_b0 * jnp.ones(scenario['cx_nn'].shape[0])
+    logvar = numpyro.sample("logvar",dist.Normal(logvar_func, logvar_noise))
+    var = jnp.exp(logvar)
+
+    numpyro.sample("Temperature", dist.Normal(mean, jnp.sqrt(var)), obs=scenario["cdata_nn"])
+
+#######################################################################################
+
 # %% Running Inference
 mcmc = run_inference(mean_model_obs, rng_key, 1000, 2000,1, scenario)
 idata = az.from_numpyro(mcmc,
@@ -136,6 +175,21 @@ idata_climate = az.from_numpyro(mcmc_climate,
 
 posterior_climate = idata_climate.posterior
 posterior_climate['X'] = X.reset_index('X')
+
+#######################################################################################
+
+mcmc_climate_nn = run_inference(mean_model_climate_nn, rng_key, 1000, 2000,1, scenario)
+idata_climate_nn = az.from_numpyro(mcmc_climate_nn,
+                coords={
+                "X": X_nn,
+    },
+                dims={"logvar": ["X"],
+                      "mean": ["X"]})
+
+posterior_climate_nn = idata_climate_nn.posterior
+posterior_climate_nn['X'] = X_nn.reset_index('X')
+
+#######################################################################################
 
 
 # %% Assigning Some Coords and Computing Mean Function Prediction
@@ -174,9 +228,29 @@ posterior_climate['logvarfunc_prediction_unbiased'] = (posterior['logvar_b0'])
 posterior_climate['meanfunc_residual'] = posterior_climate['mean'] - posterior_climate['meanfunc_prediction']
 posterior_climate['logvarfunc_residual'] = posterior_climate['logvar'] - posterior_climate['logvarfunc_prediction']
 
+# #######################################################################################
+
+# posterior_climate_nn['meanfunc_prediction'] = (posterior_climate_nn['mean_b0']
+#                                 + posterior_climate_nn['mean_b1']*posterior_climate_nn['Elevation_Scaled']
+#                                 + posterior_climate_nn['mean_b2']*posterior_climate_nn['Latitude_Scaled'])
+# posterior_climate_nn['logvarfunc_prediction'] = (posterior_climate_nn['logvar_b0'])
+
+# posterior_climate_nn['meanfunc_prediction_unbiased'] = (posterior_climate_nn['mean_b0']
+#                                 + posterior_climate_nn['mean_b1']*posterior_climate_nn['Elevation_Scaled']
+#                                 + posterior_climate_nn['mean_b2']*posterior_climate_nn['Latitude_Scaled'])
+# posterior_climate_nn['logvarfunc_prediction_unbiased'] = (posterior_climate_nn['logvar_b0'])
+#                                 # + posterior_climate['logvar_b1']*posterior_climate['cele_scaled']
+#                                 # + posterior_climate['logvar_b2']*posterior_climate['clat_scaled'])
+
+# posterior_climate_nn['meanfunc_residual'] = posterior_climate_nn['mean'] - posterior_climate_nn['meanfunc_prediction']
+# posterior_climate_nn['logvarfunc_residual'] = posterior_climate_nn['logvar'] - posterior_climate_nn['logvarfunc_prediction']
+
+# #######################################################################################
+
 # %% Saving Output
 scenario['Mean_Function_Posterior'] = posterior
 scenario['Mean_Function_Posterior_Climate'] = posterior_climate
+scenario['Mean_Function_Posterior_Climate_NN'] = posterior_climate_nn
 
 scenario['exp_meanfunc_residual_obs'] = posterior['meanfunc_residual'].mean(['chain','draw']).data
 scenario['var_meanfunc_residual_obs'] = posterior['meanfunc_residual'].var(['chain','draw']).data

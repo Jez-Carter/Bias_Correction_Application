@@ -64,7 +64,7 @@ gdf_all_combined = gdf_all_combined.drop('zhandian',axis=1)
 gdf_icesheet = gpd.read_file(icehsheet_shapefile)
 gdf_icesheet_main = gpd.read_file(icehsheet_main_shapefile)
 gdf_icesheet_main = gdf_icesheet_main.explode().iloc[[61]]
-gdf_icesheet_main = gdf_icesheet_main.reset_index().drop(columns=['level_0','level_1'])
+# gdf_icesheet_main = gdf_icesheet_main.reset_index().drop(columns=['level_0','level_1'])
 
 index_group = ['Station',
                'Lat(℃)',

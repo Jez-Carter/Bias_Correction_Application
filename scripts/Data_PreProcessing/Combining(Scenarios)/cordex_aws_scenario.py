@@ -36,7 +36,7 @@ ds_aws_june = ds_aws.sel(Month=6)
 
 gdf_icesheet_main = gpd.read_file(icehsheet_main_shapefile)
 gdf_icesheet_main = gdf_icesheet_main.explode().iloc[[61]]
-gdf_icesheet_main = gdf_icesheet_main.reset_index().drop(columns=['level_0','level_1'])
+gdf_icesheet_main = gdf_icesheet_main#.reset_index().drop(columns=['level_0','level_1'])
 map_proj = ccrs.Orthographic(central_longitude=0.0, central_latitude=-90, globe=None)
 aws_mask = create_aws_mask(ds_aws,gdf_icesheet_main,map_proj)
 mainland_stations = ds_aws['Station'][aws_mask].data

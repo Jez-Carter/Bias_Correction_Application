@@ -89,6 +89,18 @@ az.summary(posterior_meanfunc_climate[['mean_b0',
                                    'logvar_noise'
                                    ]],hdi_prob=0.95)
 
+# %% Summary Mean Function Parameter Estimates Climate Model NN Only
+########################################################################################
+az.summary(scenario['Mean_Function_Posterior_Climate_NN'][['mean_b0',
+                                   'mean_b1',
+                                   'mean_b2',
+                                   'mean_noise',
+                                   'logvar_b0',
+                                   'logvar_noise'
+                                   ]],hdi_prob=0.95)
+
+########################################################################################
+
 # %% R2 Scores
 print(f'''Observations:
     Mean:
@@ -126,7 +138,7 @@ for axs,posterior in zip(axes,[posterior_meanfunc_obs,posterior_meanfunc_climate
     hdpi_meanfunc_residual = hpdi(posterior['meanfunc_residual'],0.95,axis=1)[0]
     err_meanfunc_residual = hdpi_meanfunc_residual[1]-exp_meanfunc_residual
 
-    linspace_mean = np.linspace(exp_mean_prediction.min(),exp_mean_prediction.max(),10)
+    linspace_mean = np.linspace(exp_mean_prediction.min().data,exp_mean_prediction.max().data,10)
 
     ax=axs[0]
     ax.errorbar(x = exp_mean_prediction,
@@ -192,7 +204,7 @@ for axs,posterior in zip(axes,[posterior_meanfunc_obs,posterior_meanfunc_climate
     hdpi_logvarfunc_residual = hpdi(posterior['logvarfunc_residual'],0.95,axis=1)[0]
     err_logvarfunc_residual = hdpi_logvarfunc_residual[1]-exp_logvarfunc_residual
 
-    linspace_logvar = np.linspace(exp_logvar_prediction.min(),exp_logvar_prediction.max(),10)
+    linspace_logvar = np.linspace(exp_logvar_prediction.min().data,exp_logvar_prediction.max().data,10)
 
     ax=axs[0]
     ax.errorbar(x = exp_logvar_prediction,
@@ -255,8 +267,8 @@ exp_logvarfunc_residual_climate_nn = posterior_meanfunc_climate_nn['logvarfunc_r
 hdpi_logvarfunc_residual_climate_nn = hpdi(posterior_meanfunc_climate_nn['logvarfunc_residual'],0.95,axis=1)[0]
 err_logvarfunc_residual_climate_nn = hdpi_logvarfunc_residual_climate_nn[1]-exp_logvarfunc_residual_climate_nn
 
-linspace_mean_residual = np.linspace(exp_meanfunc_residual_obs.min(),exp_meanfunc_residual_obs.max(),10)
-linspace_logvar_residual = np.linspace(exp_logvarfunc_residual_obs.min(),exp_logvarfunc_residual_obs.max(),10)
+linspace_mean_residual = np.linspace(exp_meanfunc_residual_obs.min().data,exp_meanfunc_residual_obs.max().data,10)
+linspace_logvar_residual = np.linspace(exp_logvarfunc_residual_obs.min().data,exp_logvarfunc_residual_obs.max().data,10)
 
 ax=axs[0]
 ax.plot(linspace_mean_residual,
@@ -403,8 +415,8 @@ hdpi_logvarfunc_residual_bias_nn = hpdi(logvarfunc_residual_bias_nn,0.95,axis=1)
 err_logvarfunc_residual_bias_nn = hdpi_logvarfunc_residual_bias_nn[1]-exp_logvarfunc_residual_bias_nn
 
 
-linspace_mean_residual = np.linspace(exp_meanfunc_residual_obs.min(),exp_meanfunc_residual_obs.max(),10)
-linspace_logvar_residual = np.linspace(exp_logvarfunc_residual_obs.min(),exp_logvarfunc_residual_obs.max(),10)
+linspace_mean_residual = np.linspace(exp_meanfunc_residual_obs.min().data,exp_meanfunc_residual_obs.max().data,10)
+linspace_logvar_residual = np.linspace(exp_logvarfunc_residual_obs.min().data,exp_logvarfunc_residual_obs.max().data,10)
 
 ax=axs[0]
 # ax.plot(linspace_mean_residual,

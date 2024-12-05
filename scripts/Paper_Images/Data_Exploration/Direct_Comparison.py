@@ -59,7 +59,7 @@ icehsheet_main_shapefile = f'{shapefiles_path}/cst10_polygon.shp'
 gdf_icesheet = gpd.read_file(icehsheet_shapefile)
 gdf_icesheet_main = gpd.read_file(icehsheet_main_shapefile)
 gdf_icesheet_main = gdf_icesheet_main.explode().iloc[[61]]
-gdf_icesheet_main = gdf_icesheet_main.reset_index().drop(columns=['level_0','level_1'])
+# gdf_icesheet_main = gdf_icesheet_main.reset_index().drop(columns=['level_0','level_1'])
 
 rotated_coord_system = ccrs.RotatedGeodetic(
     13.079999923706055,
@@ -506,3 +506,4 @@ g.fig.set_size_inches(text_width, text_width)
 
 # # %%
 # ds_climate_nearest_stacked
+# %%

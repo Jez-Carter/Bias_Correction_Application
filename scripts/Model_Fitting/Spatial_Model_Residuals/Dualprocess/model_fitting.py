@@ -105,7 +105,7 @@ generate_posterior_dualprocess_logvar(scenario,
 
 # %% Summary statistics from MCMC
 az.summary(scenario["mcmc_dualprocess_mean_residual"].posterior, hdi_prob=0.95)
-az.summary(scenario["mcmc_dualprocess_logvar_residual"].posterior, hdi_prob=0.95)
+# az.summary(scenario["mcmc_dualprocess_logvar_residual"].posterior, hdi_prob=0.95)
 
 # %% Saving Output
 scenario_outpath = f'{base_path}DSNE_ice_sheets/Jez/Bias_Correction/Data/scenario_real.npy'
