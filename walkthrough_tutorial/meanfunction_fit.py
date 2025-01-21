@@ -13,7 +13,10 @@ rng_key = jax.random.PRNGKey(1)
 jax.config.update("jax_enable_x64", True)
 
 # %% Loading the data
-with open('/home/jez/Bias_Correction_Application/walkthrough_tutorial/data_dictionary.pkl', 'rb') as f:
+# with open('/home/jez/Bias_Correction_Application/walkthrough_tutorial/data_dictionary.pkl', 'rb') as f:
+#     data_dictionary = pickle.load(f)
+
+with open('/home/jez/Bias_Correction_Application/walkthrough_tutorial/data_dictionary_new.pkl', 'rb') as f:
     data_dictionary = pickle.load(f)
 
 # %% Defining the model for predicting the mean and logvar for each dataset as well as the parameters for the meanfunction giving domain-wide behaviour
@@ -124,9 +127,10 @@ meanfunc_posterior['clogvar_func_residual'] = meanfunc_posterior['clogvar']-mean
 data_dictionary['meanfunc_posterior'] = meanfunc_posterior
 
 # %% Saving the dictionary:
-import pickle 
+# with open('/home/jez/Bias_Correction_Application/walkthrough_tutorial/data_dictionary.pkl', 'wb') as f:
+#     pickle.dump(data_dictionary, f)
 
-with open('/home/jez/Bias_Correction_Application/walkthrough_tutorial/data_dictionary.pkl', 'wb') as f:
+with open('/home/jez/Bias_Correction_Application/walkthrough_tutorial/data_dictionary_new.pkl', 'wb') as f:
     pickle.dump(data_dictionary, f)
 
 # %%
