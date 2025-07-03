@@ -1,3 +1,6 @@
+Method tutorial available at: [UKCEH Environmental Data Science Toolbox 🌱](https://nerc-ceh.github.io/data-science-toolbox/methods/ds-toolbox-notebook-biascorrection/bias-correction.html
+)
+
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ***Current Progress:***
